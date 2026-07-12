@@ -4,7 +4,6 @@ const cors = require("cors");
 const connectDb = require("./config/connectDb");
 const userRoutes = require("./router/userRouter");
 const postRoutes = require("./router/postRouter");
-const cloudinaryConfig = require("./config/cloudinaryConfig");
 
 const app = express();
 app.use(express.json());
@@ -21,5 +20,4 @@ app.use("/api/v1/post", postRoutes);
 app.listen(PORT, () => {
   console.log(`server started ${PORT}`);
   connectDb();
-  cloudinaryConfig();
 });

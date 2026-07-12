@@ -12,6 +12,7 @@ const verifyUser = require("../middleware/auth");
 const upload = require("../utils/multer");
 const {
   addCommentPost,
+  getCommentReplies,
   commentPostLike,
   updateCommentPost,
   deleteCommentPost,
@@ -23,6 +24,7 @@ route.get("/", getPost);
 route.get("/search-post", searchPosts);
 route.post("/like/:postId", verifyUser, postLike);
 route.post("/comment/:postId", verifyUser, addCommentPost);
+route.get("/comment/:commentId/replies", getCommentReplies);
 route.post("/comment-like/:commentId", verifyUser, commentPostLike);
 route.put("/comment/:commentId", verifyUser, updateCommentPost);
 route.delete("/comment/:commentId", verifyUser, deleteCommentPost);

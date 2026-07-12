@@ -5,20 +5,23 @@ import toast from "react-hot-toast";
 import { logout } from "../utils/userSlice";
 import axios from "axios";
 import ProfileMenu from "./ProfileMenu";
-import { LiaPenNibSolid } from "react-icons/lia";
-import { IoSearch } from "react-icons/io5";
+import { FaPenNib, FaSearch } from "react-icons/fa";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { token, name, id } = useSelector((state) => state.user);
-  const [searchQuery, setSearchQuery] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   async function handleDeleteUser() {
     if (!window.confirm("Are you sure you want to delete your account?"))
       return;
+
     setLoading(true);
+
     try {
       const response = await axios.delete(
         `${import.meta.env.VITE_API_URL}/user/${id}`,
@@ -26,13 +29,16 @@ const Navbar = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
+
       dispatch(logout());
       toast.success(response.data.message);
       navigate("/signin");
     } catch (error) {
-      toast.error("Failed to delete user:" + error.response?.data?.message);
+      toast.error(
+        "Failed to delete user: " + (error.response?.data?.message || "")
+      );
     } finally {
       setLoading(false);
     }
@@ -43,72 +49,93 @@ const Navbar = () => {
     navigate("/signin");
   }
 
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${searchQuery.trim()}`);
+    }
+  };
+
   return (
-    <div className="sticky top-0 z-50 w-full h-17.5 bg-white border-b border-gray-200 shadow-sm">
-      <div className="grid grid-cols-3 items-center h-full px-6">
-        {/* Left side - Logo */}
-        <div className="flex items-center">
-          <Link to={"/"}>
-            <div className="text-2xl font-bold tracking-tight bg-linear-to-r from-purple-700 to-pink-500 bg-clip-text text-transparent">
-              Sklogin
-            </div>
-          </Link>
-        </div>
+    <div className="sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-[#1E1B4B] px-6 shadow-lg shadow-indigo-950/20">
+      {/* Left Side */}
+      <div className="flex items-center gap-6">
+        {/* Logo */}
+        <Link to="/" className="shrink-0">
+          <h1 className="bg-linear-to-r from-violet-300 via-indigo-200 to-violet-400 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent">
+            SkLogin
+          </h1>
+        </Link>
 
-        {/* Center - Search */}
-        <div className="flex justify-center">
-          <div className="relative w-full max-w-md">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition-colors"
-              value={searchQuery ? searchQuery : ""}
-              onChange={(e) => setSearchQuery(e.target.value.trimStart())}
-              onKeyDown={(e) => {
-                if (e.code === "Enter" && searchQuery?.trim()) {
-                  navigate(`/search?q=${searchQuery.trim()}`);
-                }
-              }}
-            />
-            <IoSearch className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          </div>
+        {/* Search */}
+        <div
+          className={`flex w-80 items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200 ${
+            searchFocused
+              ? "border-violet-400 bg-white/10 shadow-[0_0_0_4px_rgba(167,139,250,0.15)]"
+              : "border-white/10 bg-white/5 hover:bg-white/8"
+          }`}
+        >
+          <FaSearch
+            size={13}
+            className={`shrink-0 transition-colors ${
+              searchFocused ? "text-violet-300" : "text-indigo-300/60"
+            }`}
+          />
+          <input
+            type="text"
+            placeholder="Search articles..."
+            className="w-full bg-transparent text-sm text-indigo-50 placeholder:text-indigo-300/50 focus:outline-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value.trimStart())}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+          />
         </div>
+      </div>
 
-        {/* Right side - Actions */}
-        <div className="flex items-center justify-end gap-4">
-          {token ? (
-            <>
-              <Link
-                to={"/add-post"}
-                className="flex items-center gap-2 text-gray-700 hover:text-amber-500 transition-colors"
-              >
-                <button className="flex items-center gap-1.5 text-lg font-medium">
-                  <LiaPenNibSolid className="text-3xl" />
-                  <span className="hidden sm:inline">Write</span>
-                </button>
-              </Link>
-              <ProfileMenu
-                name={name}
-                loading={loading}
-                handleLogout={handleLogout}
-                handleDeleteUser={handleDeleteUser}
+      {/* Right Side */}
+      <div className="flex items-center gap-4">
+        {token ? (
+          <>
+            <Link
+              to="/add-post"
+              className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-indigo-200 transition-colors duration-200 hover:bg-white/10 hover:text-white"
+            >
+              <FaPenNib
+                size={13}
+                className="transition-transform duration-200 group-hover:-rotate-6"
               />
-            </>
-          ) : (
-            <>
-              <Link to={"/signup"}>
-                <button className="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-amber-600 transition-colors text-sm font-medium">
-                  Signup
-                </button>
-              </Link>
-              <Link to={"/signin"}>
-                <button className="border border-gray-300 px-5 py-2 rounded-full hover:bg-amber-400 transition-colors text-sm font-medium">
-                  Signin
-                </button>
-              </Link>
-            </>
-          )}
-        </div>
+              <span>Write</span>
+            </Link>
+
+            <div className="h-6 w-px bg-white/10" />
+
+            <ProfileMenu
+              name={name}
+              loading={loading}
+              handleLogout={handleLogout}
+              handleDeleteUser={handleDeleteUser}
+            />
+          </>
+        ) : (
+          <>
+            <Link to="/signin">
+              <button className="rounded-full px-4 py-2 text-sm font-medium text-indigo-200 transition-colors duration-200 hover:text-white">
+                Sign in
+              </button>
+            </Link>
+
+            <Link to="/signup">
+              <button className="rounded-full bg-linear-to-r from-violet-500 to-indigo-500 px-5 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:shadow-md hover:shadow-violet-900/40 active:scale-[0.98]">
+                Sign up
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

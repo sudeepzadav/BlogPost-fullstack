@@ -46,7 +46,7 @@ const Auth = ({ type }) => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full bg-linear-to-br from-pink-500 via-white to-blue-500">
+    <div className="flex justify-center items-center min-h-195 w-full bg-linear-to-br from-pink-500 via-white to-blue-500">
       <form
         onSubmit={handleSubmit}
         className="bg-white text-gray-500 max-w-sm w-full p-8 text-left text-sm rounded-2xl shadow-xl shadow-indigo-100 border border-gray-100"
@@ -138,14 +138,20 @@ const Auth = ({ type }) => {
         {type === "signup" ? (
           <p className="text-center text-gray-500">
             Already have an account?{" "}
-            <Link to="/signin" className="text-indigo-500 font-medium hover:underline">
+            <Link
+              to="/signin"
+              className="text-indigo-500 font-medium hover:underline"
+            >
               Log In
             </Link>
           </p>
         ) : (
           <p className="text-center text-gray-500">
             Don't have an account?{" "}
-            <Link to="/signup" className="text-indigo-500 font-medium hover:underline">
+            <Link
+              to="/signup"
+              className="text-indigo-500 font-medium hover:underline"
+            >
               Create Account
             </Link>
           </p>

@@ -11,6 +11,14 @@ async function createPost(req, res) {
     const { title, description, draft } = req.body;
     const creator = req.user;
     const image = req.file;
+
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: "Please upload an image",
+      });
+    }
+
     const findUser = await User.findById(creator);
     if (!findUser) {
       return res.status(400).json({
@@ -44,9 +52,11 @@ async function createPost(req, res) {
       post: newPost,
     });
   } catch (error) {
+    console.error("createPost error:", error); // logs full error server-side
     return handleError(res, error);
   }
 }
+
 async function getPost(req, res) {
   try {
     const page = parseInt(req.query.page);
@@ -71,21 +81,20 @@ async function getPost(req, res) {
     return handleError(res, error);
   }
 }
+
 async function getPostId(req, res) {
   try {
     const { postId } = req.params;
-    const post = await Post.findOne({ postId, draft: false })
-      .populate({
-        path: "creator",
-        select: "name email",
-      })
-      .populate({
-        path: "comments",
-        populate: {
-          path: "user",
-          select: "name email",
-        },
-      });
+    const post = await Post.findOne({ postId, draft: false }).populate({
+      path: "creator",
+      select: "name email",
+    }).populate({
+      path: "comments",
+      populate: {
+        path: "user",
+        select: "name email"
+      }
+    });
     return res.status(200).json({
       success: true,
       message: "Post get successfully",
@@ -119,7 +128,7 @@ async function updatePost(req, res) {
     postdata.title = title || postdata.title;
     postdata.description = description || postdata.description;
     postdata.draft = draft || postdata.draft;
-    postdata.save();
+    postdata.save()
 
     return res.status(200).json({
       success: true,
@@ -127,6 +136,7 @@ async function updatePost(req, res) {
       post: postdata,
     });
   } catch (error) {
+    console.error("updatePost error:", error);
     return handleError(res, error);
   }
 }
@@ -223,6 +233,7 @@ async function searchPosts(req, res) {
     return handleError(res, error);
   }
 }
+
 module.exports = {
   postLike,
   createPost,
