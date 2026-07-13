@@ -4,11 +4,11 @@ import usePagination from "../utils/usePagination";
 
 const Home = () => {
   const [page, setPage] = useState(1);
-  const { posts, hasMore } = usePagination("post", {}, 2, page);
+  const { posts, hasMore } = usePagination("post", {}, 8, page);
 
   return (
-    <div className="min-h-screen bg-slate-50 px-6 py-10 sm:px-10">
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="min-h-125 overflow-y-auto overflow-x-hidden bg-slate-50">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-3">
         {posts.map((post) => (
           <Post post={post} key={post._id} />
         ))}

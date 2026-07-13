@@ -12,25 +12,23 @@ import SearchPost from "./pages/SearchPost";
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<SearchPost />} />
-          <Route path="/add-post" element={<AddPost />} />
-          <Route path="/edit-post/:id" element={<AddPost />} />
-          <Route path="/post/:id" element={<PostPage />} />
-          <Route path="/signup" element={<Auth type="signup" />} />
-          <Route path="/signin" element={<Auth type="signin" />} />
-          <Route
-            path="/verify-email/:verificationToken"
-            element={<VerifyUser />}
-          />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-        </Route>
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="search" element={<SearchPost />} />
+        <Route path="add-post" element={<AddPost />} />
+        <Route path="edit-post/:id" element={<AddPost />} />
+        <Route path="post/:id" element={<PostPage />} />
+        <Route path="signup" element={<Auth type="signup" />} />
+        <Route path="signin" element={<Auth type="signin" />} />
+        <Route
+          path="verify-email/:verificationToken"
+          element={<VerifyUser />}
+        />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password/:token" element={<ResetPassword />} />
+      </Route>
+    </Routes>
   );
 }
 
