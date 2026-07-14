@@ -7,25 +7,24 @@ const Layout = () => {
   const location = useLocation();
   const { role } = useSelector((state) => state.user);
 
-  const hideNavbar =
+  const hideNavbarAndFooter =
     ["/signin", "/signup", "/forgot-password"].includes(location.pathname) ||
     location.pathname.startsWith("/reset-password") ||
     location.pathname.startsWith("/verify-email");
 
- 
   if (role === "admin" && location.pathname !== "/admin/dashboard") {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
   return (
     <div className="flex min-h-screen flex-col">
-      {!hideNavbar && <Navbar />}
+      {!hideNavbarAndFooter && <Navbar />}
 
       <main className="flex-1">
         <Outlet />
       </main>
 
-      <Footer />
+      {!hideNavbarAndFooter && <Footer />}
     </div>
   );
 };
