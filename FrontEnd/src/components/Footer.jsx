@@ -4,7 +4,7 @@ import { socialLinks } from "../constants/footerLinks";
 const Footer = () => {
   return (
     <footer className="border-t border-white/10 bg-[#221f58] rounded-t-xl">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex  flex-col gap-6 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
         {/* Left */}
         <div>
           <Link to="/">

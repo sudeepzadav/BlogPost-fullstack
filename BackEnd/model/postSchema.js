@@ -15,6 +15,11 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",

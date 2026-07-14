@@ -4,9 +4,9 @@
 
   async function addCommentPost(req, res) {
     try {
-      const creator = req.user;
+      const creator = req.user.id;
       const { postId } = req.params;
-      const { comment, parentComment } = req.body; // 👈 parentComment added
+      const { comment, parentComment } = req.body; 
       if (!comment) {
         return res
           .status(404)
@@ -56,7 +56,7 @@
     }
   }
 
-  // 👇 new controller — GET replies for a comment
+  //  GET replies for a comment
   async function getCommentReplies(req, res) {
     try {
       const { commentId } = req.params;
@@ -84,7 +84,7 @@
 
   async function commentPostLike(req, res) {
     try {
-      const creator = req.user;
+      const creator = req.user.id;
       const { commentId } = req.params;
       const comment = await Comment.findById(commentId);
       if (!comment) {
@@ -113,7 +113,7 @@
 
   async function updateCommentPost(req, res) {
     try {
-      const creator = req.user;
+      const creator = req.user.id;
       const { message } = req.body;
       const { commentId } = req.params;
 
@@ -155,7 +155,7 @@
 
   async function deleteCommentPost(req, res) {
     try {
-      const creator = req.user;
+      const creator = req.user.id;
       const { commentId } = req.params;
 
       const existingComment = await Comment.findById(commentId);
@@ -201,7 +201,7 @@
 
   module.exports = {
     addCommentPost,
-    getCommentReplies, // 👈 new export
+    getCommentReplies, 
     commentPostLike,
     updateCommentPost,
     deleteCommentPost,

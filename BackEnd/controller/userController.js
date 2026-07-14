@@ -6,6 +6,7 @@ const {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } = require("../utils/sendEmail");
+
 async function createUser(req, res) {
   try {
     const { name, email, password } = req.body;
@@ -35,6 +36,7 @@ async function createUser(req, res) {
       }
     }
     const newpassword = await bcrypt.hash(password, 10);
+    // role is never taken from req.body — always defaults to "user" from the schema
     const newUser = await User.create({ name, email, password: newpassword });
     let token = await generateJWT({
       email: newUser.email,
@@ -49,9 +51,10 @@ async function createUser(req, res) {
     return handleError(res, error);
   }
 }
+
 async function getUser(req, res) {
   try {
-    const users = await User.find();
+    const users = await User.find().select("-password");
     return res.status(200).json({
       success: true,
       message: "User get successfully",
@@ -61,10 +64,14 @@ async function getUser(req, res) {
     return handleError(res, error);
   }
 }
+
 async function getUserId(req, res) {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
     return res.status(200).json({
       success: true,
       message: "User get successfully",
@@ -78,13 +85,25 @@ async function getUserId(req, res) {
 async function updateUser(req, res) {
   try {
     const { id } = req.params;
-    const { name, email, password } = req.body;
-    const password1 = await bcrypt.hash(password, 10);
-    const user = await User.findByIdAndUpdate(
-      id,
-      { name, email, password: password1 },
-      { new: true },
-    );
+    const { name, email, password } = req.body; // role intentionally not destructured
+
+    // self-or-admin check
+    if (req.user.id !== id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this account" });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     return res.status(200).json({
       success: true,
       message: "User update successfully",
@@ -94,6 +113,7 @@ async function updateUser(req, res) {
     return handleError(res, error);
   }
 }
+
 async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
@@ -117,7 +137,7 @@ async function loginUser(req, res) {
       });
       await sendVerificationEmail(checkForexitUser.email, token);
       return res.status(403).json({
-        success: true,
+        success: false,
         message: "Please Check Your Email",
       });
     }
@@ -134,6 +154,7 @@ async function loginUser(req, res) {
     let token = await generateJWT({
       email: checkForexitUser.email,
       id: checkForexitUser._id,
+      role: checkForexitUser.role, // required for isAdmin to work
     });
     return res.status(200).json({
       success: true,
@@ -142,6 +163,7 @@ async function loginUser(req, res) {
         id: checkForexitUser._id,
         name: checkForexitUser.name,
         email: checkForexitUser.email,
+        role: checkForexitUser.role,
         token,
       },
     });
@@ -149,9 +171,16 @@ async function loginUser(req, res) {
     return handleError(res, error);
   }
 }
+
 async function deleteUser(req, res) {
   try {
     const { id } = req.params;
+
+    // self-or-admin check
+    if (req.user.id !== id && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this account" });
+    }
+
     const deletedUser = await User.findByIdAndDelete(id);
     if (!deletedUser) {
       return res
@@ -165,6 +194,7 @@ async function deleteUser(req, res) {
     return handleError(res, error);
   }
 }
+
 async function verifyToken(req, res) {
   try {
     const { verificationToken } = req.params;
@@ -190,6 +220,7 @@ async function verifyToken(req, res) {
     return handleError(res, error);
   }
 }
+
 async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
@@ -214,6 +245,7 @@ async function forgotPassword(req, res) {
     return handleError(res, error);
   }
 }
+
 async function resetPassword(req, res) {
   try {
     const { resetToken } = req.params;
@@ -247,6 +279,7 @@ async function resetPassword(req, res) {
     return handleError(res, error);
   }
 }
+
 module.exports = {
   createUser,
   getUser,
@@ -257,4 +290,4 @@ module.exports = {
   verifyToken,
   forgotPassword,
   resetPassword,
-}; 
+};

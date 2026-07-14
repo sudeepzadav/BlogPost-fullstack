@@ -10,7 +10,8 @@ import { FaPenNib, FaSearch } from "react-icons/fa";
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { token, name, id } = useSelector((state) => state.user);
+  const { token, name, id, role } = useSelector((state) => state.user);
+  const isAdmin = role === "admin";
 
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -66,53 +67,59 @@ const Navbar = () => {
           </h1>
         </Link>
 
-        {/* Search */}
-        <div
-          className={`flex w-80 items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200 ${
-            searchFocused
-              ? "border-violet-400 bg-white/10 shadow-[0_0_0_4px_rgba(167,139,250,0.15)]"
-              : "border-white/10 bg-white/5 hover:bg-white/8"
-          }`}
-        >
-          <FaSearch
-            size={13}
-            className={`shrink-0 transition-colors ${
-              searchFocused ? "text-violet-300" : "text-indigo-300/60"
+        {/* Search - hidden for admins */}
+        {!isAdmin && (
+          <div
+            className={`flex w-80 items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200 ${
+              searchFocused
+                ? "border-violet-400 bg-white/10 shadow-[0_0_0_4px_rgba(167,139,250,0.15)]"
+                : "border-white/10 bg-white/5 hover:bg-white/8"
             }`}
-          />
-          <input
-            type="text"
-            placeholder="Search articles..."
-            className="w-full bg-transparent text-sm text-indigo-50 placeholder:text-indigo-300/50 focus:outline-none"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value.trimStart())}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-          />
-        </div>
+          >
+            <FaSearch
+              size={13}
+              className={`shrink-0 transition-colors ${
+                searchFocused ? "text-violet-300" : "text-indigo-300/60"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Search articles..."
+              className="w-full bg-transparent text-sm text-indigo-50 placeholder:text-indigo-300/50 focus:outline-none"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value.trimStart())}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch();
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Right Side */}
       <div className="flex items-center gap-4">
         {token ? (
           <>
-            <Link
-              to="/add-post"
-              className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-indigo-200 transition-colors duration-200 hover:bg-white/10 hover:text-white"
-            >
-              <FaPenNib
-                size={13}
-                className="transition-transform duration-200 group-hover:-rotate-6"
-              />
-              <span>Write</span>
-            </Link>
+            {!isAdmin && (
+              <>
+                <Link
+                  to="/add-post"
+                  className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-indigo-200 transition-colors duration-200 hover:bg-white/10 hover:text-white"
+                >
+                  <FaPenNib
+                    size={13}
+                    className="transition-transform duration-200 group-hover:-rotate-6"
+                  />
+                  <span>Write</span>
+                </Link>
 
-            <div className="h-6 w-px bg-white/10" />
+                <div className="h-6 w-px bg-white/10" />
+              </>
+            )}
 
             <ProfileMenu
               name={name}

@@ -28,6 +28,11 @@ const userSchma = new mongoose.Schema(
         ref: "post",
       },
     ],
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    },
     verify: {
       type: Boolean,
       default: false,

@@ -1,9 +1,22 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { FiLogOut, FiTrash2, FiChevronDown } from "react-icons/fi";
 
 const ProfileMenu = ({ name, loading, handleLogout, handleDeleteUser }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { role } = useSelector((state) => state.user);
+
+  const handleDashboard = () => {
+    if (role === "admin") {
+      navigate("/admin/dashboard"); // adjust to your actual admin route
+    } else {
+      navigate("/dashboard"); // adjust to your actual user route
+    }
+    setOpen(false);
+  };
 
   return (
     <div className="relative" tabIndex={0}>
@@ -56,6 +69,13 @@ const ProfileMenu = ({ name, loading, handleLogout, handleDeleteUser }) => {
 
         {/* Menu */}
         <div className="p-2">
+          <Button
+            onClick={handleDashboard}
+            className="flex justify-center px-4 py-3 mb-1 bg-purple-400"
+          >
+            Dashboard
+          </Button>
+
           <Button
             onClick={() => {
               handleLogout();
