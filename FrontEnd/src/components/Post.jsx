@@ -22,16 +22,12 @@ const Post = ({ post }) => {
         <h2 className="card-title line-clamp-1">{post.title}</h2>
         <p className="line-clamp-3">{post.description}</p>
 
-        <div className="card-actions justify-between items-center">
-          {!isViewable && (
+        {!isViewable && (
+          <div className="card-actions justify-between items-center">
             <span className="badge badge-warning">
               {STATUS_LABEL[post.status] || post.status}
             </span>
-          )}
 
-          {isViewable ? (
-            <button className="btn btn-primary">Buy Now</button>
-          ) : (
             <Link
               to={`/edit-post/${post.postId}`}
               onClick={(e) => e.stopPropagation()}
@@ -39,13 +35,12 @@ const Post = ({ post }) => {
             >
               Edit
             </Link>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );
 
-  
   if (isViewable) {
     return (
       <Link

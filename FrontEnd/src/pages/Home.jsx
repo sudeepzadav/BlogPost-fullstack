@@ -8,7 +8,7 @@ const Home = () => {
 
   return (
     <div className="h-[calc(100vh-9rem)] overflow-y-auto overflow-x-hidden bg-slate-50 scrollbar-hide">
-      <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
         {posts.map((post) => (
           <Post post={post} key={post._id} />
         ))}
