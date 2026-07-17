@@ -17,10 +17,10 @@ const Layout = () => {
   }
 
   return (
-    <div className="flex max-h-screen overflow-y-auto flex-col scrollbar-hide">
+    <div className="flex h-screen flex-col overflow-hidden">
       {!hideNavbarAndFooter && <Navbar />}
 
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto scrollbar-hide">
         <Outlet />
       </main>
 

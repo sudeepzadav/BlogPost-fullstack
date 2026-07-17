@@ -120,31 +120,35 @@ const AdminDashboard = () => {
   const rejectedPosts = allPosts.filter((p) => p.status === "rejected");
 
   const PostRow = ({ post, showActions }) => (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-      <img
-        src={post.image}
-        alt={post.title}
-        className="h-16 w-16 rounded-lg object-cover shrink-0"
-      />
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold truncate">{post.title}</h3>
-        <p className="text-sm text-gray-500 line-clamp-1">{post.description}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          by {post.creator?.name || post.user?.name || "unknown"}
-        </p>
+    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 ">
+      <div className="flex items-center gap-4 min-w-0">
+        <img
+          src={post.image}
+          alt={post.title}
+          className="h-14 w-14 sm:h-16 sm:w-16 rounded-lg object-cover shrink-0"
+        />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold truncate">{post.title}</h3>
+          <p className="text-sm text-gray-500 line-clamp-1">
+            {post.description}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            by {post.creator?.name || post.user?.name || "unknown"}
+          </p>
+        </div>
       </div>
       {showActions && (
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 sm:ml-auto">
           <button
             onClick={() => handleStatusUpdate(post._id, "approved")}
-            className="flex items-center gap-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium"
           >
             <FiCheck size={15} />
             Approve
           </button>
           <button
             onClick={() => handleStatusUpdate(post._id, "rejected")}
-            className="flex items-center gap-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
           >
             <FiX size={15} />
             Reject
@@ -155,54 +159,60 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="w-full p-6 mx-auto">
+    <div className="w-full p-4 sm:p-6 mx-auto">
       {/* Header */}
-      <div className="bg-linear-to-r from-slate-800 to-slate-900 rounded-2xl shadow-lg p-8 text-white">
-        <h1 className="text-2xl font-bold">Admin dashboard</h1>
-        <p className="text-slate-300 mt-1">
+      <div className="bg-linear-to-r from-slate-800 to-slate-900 rounded-2xl shadow-lg p-6 sm:p-8 text-white">
+        <h1 className="text-xl sm:text-2xl font-bold">Admin dashboard</h1>
+        <p className="text-slate-300 mt-1 text-sm sm:text-base">
           Manage posts and users across the platform.
         </p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-          <div className="h-11 w-11 rounded-full bg-yellow-100 flex items-center justify-center">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-yellow-100 flex items-center justify-center shrink-0">
             <FiClock className="text-yellow-600" size={20} />
           </div>
-          <div>
-            <p className="text-2xl font-bold">{pendingPosts.length}</p>
-            <p className="text-sm text-gray-500">Pending</p>
+          <div className="min-w-0">
+            <p className="text-xl sm:text-2xl font-bold">
+              {pendingPosts.length}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">Pending</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-          <div className="h-11 w-11 rounded-full bg-green-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-green-100 flex items-center justify-center shrink-0">
             <FiCheck className="text-green-600" size={20} />
           </div>
-          <div>
-            <p className="text-2xl font-bold">{approvedPosts.length}</p>
-            <p className="text-sm text-gray-500">Approved</p>
+          <div className="min-w-0">
+            <p className="text-xl sm:text-2xl font-bold">
+              {approvedPosts.length}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">Approved</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-          <div className="h-11 w-11 rounded-full bg-red-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-red-100 flex items-center justify-center shrink-0">
             <FiX className="text-red-600" size={20} />
           </div>
-          <div>
-            <p className="text-2xl font-bold">{rejectedPosts.length}</p>
-            <p className="text-sm text-gray-500">Rejected</p>
+          <div className="min-w-0">
+            <p className="text-xl sm:text-2xl font-bold">
+              {rejectedPosts.length}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500">Rejected</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
-          <div className="h-11 w-11 rounded-full bg-blue-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
             <FiUsers className="text-blue-600" size={20} />
           </div>
-          <div>
-            <p className="text-2xl font-bold">{users.length}</p>
-            <p className="text-sm text-gray-500">Users</p>
+          <div className="min-w-0">
+            <p className="text-xl sm:text-2xl font-bold">{users.length}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Users</p>
           </div>
         </div>
       </div>
@@ -213,7 +223,7 @@ const AdminDashboard = () => {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-full font-medium capitalize transition ${
+            className={`px-4 sm:px-5 py-2 rounded-full font-medium capitalize transition text-sm sm:text-base whitespace-nowrap ${
               tab === t
                 ? "bg-slate-900 text-white"
                 : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
@@ -239,11 +249,11 @@ const AdminDashboard = () => {
           ))}
         </div>
       ) : tab === "overview" ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 text-center text-gray-500">
           Overview stats are shown above. Switch tabs to take action.
         </div>
       ) : tab === "pending" ? (
-        <div className="max-h-36 overflow-y-auto space-y-4 pr-1 scrollbar-hide">
+        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-1 scrollbar-hide">
           {pendingPosts.length === 0 ? (
             <p className="text-center text-gray-400 py-16">
               No posts awaiting approval.
@@ -255,7 +265,7 @@ const AdminDashboard = () => {
           )}
         </div>
       ) : tab === "approved" ? (
-        <div className="max-h-55 overflow-y-auto space-y-4 pr-1 scrollbar-hide">
+        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-1 scrollbar-hide">
           {approvedPosts.length === 0 ? (
             <p className="text-center text-gray-400 py-16">
               No approved posts yet.
@@ -267,7 +277,7 @@ const AdminDashboard = () => {
           )}
         </div>
       ) : tab === "rejected" ? (
-        <div className="max-h-36 overflow-y-auto space-y-4 pr-1 scrollbar-hide">
+        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-1 scrollbar-hide">
           {rejectedPosts.length === 0 ? (
             <p className="text-center text-gray-400 py-16">
               No rejected posts.
@@ -279,20 +289,20 @@ const AdminDashboard = () => {
           )}
         </div>
       ) : (
-        <div className="max-h-36 overflow-y-auto bg-white rounded-xl border border-gray-200">
-          <table className="w-full text-sm">
+        <div className="max-h-[70vh] overflow-auto bg-white rounded-xl border border-gray-200">
+          <table className="w-full text-sm min-w-125">
             <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
               <tr>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">
+                <th className="text-left px-4 sm:px-5 py-3 font-medium text-gray-500">
                   Name
                 </th>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">
+                <th className="text-left px-4 sm:px-5 py-3 font-medium text-gray-500">
                   Email
                 </th>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">
+                <th className="text-left px-4 sm:px-5 py-3 font-medium text-gray-500">
                   Role
                 </th>
-                <th className="text-right px-5 py-3 font-medium text-gray-500">
+                <th className="text-right px-4 sm:px-5 py-3 font-medium text-gray-500">
                   Actions
                 </th>
               </tr>
@@ -310,11 +320,15 @@ const AdminDashboard = () => {
                     key={u._id}
                     className="border-b border-gray-100 last:border-0"
                   >
-                    <td className="px-5 py-3 capitalize">{u.name}</td>
-                    <td className="px-5 py-3 text-gray-500">{u.email}</td>
-                    <td className="px-5 py-3">
+                    <td className="px-4 sm:px-5 py-3 capitalize whitespace-nowrap">
+                      {u.name}
+                    </td>
+                    <td className="px-4 sm:px-5 py-3 text-gray-500 whitespace-nowrap">
+                      {u.email}
+                    </td>
+                    <td className="px-4 sm:px-5 py-3">
                       <span
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize whitespace-nowrap ${
                           u.role === "admin"
                             ? "bg-purple-100 text-purple-700"
                             : "bg-gray-100 text-gray-600"
@@ -323,7 +337,7 @@ const AdminDashboard = () => {
                         {u.role}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="px-4 sm:px-5 py-3 text-right">
                       {u.role !== "admin" && (
                         <button
                           onClick={() => handleDeleteUser(u._id)}
