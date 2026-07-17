@@ -7,7 +7,7 @@ const Home = () => {
   const { posts, hasMore } = usePagination("post", {}, 8, page);
 
   return (
-    <div className="bg-slate-50 max-h-125 overflow-x-hidden">
+    <div className="bg-slate-50 min-h-155 max-h-155 overflow-x-hidden">
       <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {posts.map((post) => (
           <Post post={post} key={post._id} />
