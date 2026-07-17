@@ -8,7 +8,7 @@ const fs = require("fs");
 
 async function createPost(req, res) {
   try {
-    const { title, description } = req.body;
+    const { title, description, draft } = req.body;
     const creatorId = req.user.id;
     const image = req.file;
 
@@ -39,11 +39,14 @@ async function createPost(req, res) {
     const postId =
       title.toLowerCase().split(" ").join("-") + "-" + randomUUID();
 
+    const isDraft = draft === "true" || draft === true;
+
     const newPost = await Post.create({
       title,
       description,
+      draft: isDraft,
       creator: creatorId,
-      status: "pending", // explicit — always starts pending regardless of client input
+      status: "pending",
       postId,
       image: secure_url,
       imageId: public_id,
@@ -53,7 +56,9 @@ async function createPost(req, res) {
 
     return res.status(201).json({
       success: true,
-      message: "Post created successfully, pending admin approval",
+      message: isDraft
+        ? "Draft saved successfully"
+        : "Post created successfully, pending admin approval",
       post: newPost,
     });
   } catch (error) {
@@ -68,13 +73,13 @@ async function getPost(req, res) {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ status: "approved" })
+    const posts = await Post.find({ status: "approved", draft: false })
       .populate({ path: "creator", select: "name" })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    const totalPost = await Post.countDocuments({ status: "approved" });
+    const totalPost = await Post.countDocuments({ status: "approved", draft: false });
 
     return res.status(200).json({
       success: true,
@@ -114,7 +119,7 @@ async function getPostId(req, res) {
 async function updatePost(req, res) {
   try {
     const { postId } = req.params;
-    const { title, description } = req.body;
+    const { title, description, draft } = req.body;
     const userId = req.user.id;
     const image = req.file;
 
@@ -141,6 +146,10 @@ async function updatePost(req, res) {
     postdata.title = title || postdata.title;
     postdata.description = description || postdata.description;
 
+    if (draft !== undefined) {
+      postdata.draft = draft === "true" || draft === true;
+    }
+
     // re-editing a live post sends it back for review (common blog behavior) —
     // remove this line if you'd rather edits stay live without re-approval
     if (postdata.status === "approved") {
@@ -156,6 +165,35 @@ async function updatePost(req, res) {
     });
   } catch (error) {
     console.error("updatePost error:", error);
+    return handleError(res, error);
+  }
+}
+
+// user — fetch their own post (any status) for editing
+async function getPostForEdit(req, res) {
+  try {
+    const { postId } = req.params;
+    const userId = req.user.id;
+
+    const post = await Post.findOne({ postId });
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    if (post.creator.toString() !== userId && req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to edit this post",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Post fetched successfully",
+      post,
+    });
+  } catch (error) {
     return handleError(res, error);
   }
 }
@@ -220,6 +258,7 @@ async function searchPosts(req, res) {
 
     const query = {
       status: "approved",
+      draft: false,
       $or: [
         { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
@@ -254,7 +293,7 @@ async function searchPosts(req, res) {
 // admin — view all pending posts awaiting approval
 async function getPendingPosts(req, res) {
   try {
-    const posts = await Post.find({ status: "pending" })
+    const posts = await Post.find({ status: "pending", draft: false })
       .populate({ path: "creator", select: "name email" })
       .sort({ createdAt: -1 });
 
@@ -271,7 +310,7 @@ async function getPendingPosts(req, res) {
 // admin — approve or reject a post
 async function updatePostStatus(req, res) {
   try {
-    const { postId } = req.params; 
+    const { postId } = req.params;
     const { status } = req.body;
 
     if (!["approved", "rejected"].includes(status)) {
@@ -308,6 +347,24 @@ async function getMyPosts(req, res) {
   }
 }
 
+// user — view only their own drafts
+async function getMyDrafts(req, res) {
+  try {
+    const userId = req.user.id;
+    const drafts = await Post.find({ creator: userId, draft: true }).sort({
+      createdAt: -1,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Drafts fetched successfully",
+      posts: drafts,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 module.exports = {
   postLike,
   createPost,
@@ -318,5 +375,7 @@ module.exports = {
   searchPosts,
   getPendingPosts,
   updatePostStatus,
-  getMyPosts
+  getMyPosts,
+  getMyDrafts,
+  getPostForEdit,
 };

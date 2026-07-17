@@ -3,22 +3,21 @@ import Button from "../components/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { addselectedPost, removeselectedPost } from "../utils/selectedPostSlice";
+import { useSelector } from "react-redux";
 
 const AddPost = () => {
-  const { id } = useParams()
+  const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { token } = useSelector((slice) => slice.user);
-  const { title, description, draft, image } = useSelector((slice) => slice.post);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [postData, setPostData] = useState({
     title: "",
     description: "",
     image: null,
     draft: false,
   });
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
@@ -28,12 +27,29 @@ const AddPost = () => {
         type === "checkbox" ? checked : type === "file" ? files[0] : value,
     }));
   };
+
+ 
+  const buildFormData = () => {
+    const formData = new FormData();
+    formData.append("title", postData.title);
+    formData.append("description", postData.description);
+    formData.append("draft", postData.draft); 
+
+    
+    if (postData.image && typeof postData.image !== "string") {
+      formData.append("image", postData.image);
+    }
+
+    return formData;
+  };
+
   async function handleCreatePost() {
     setLoading(true);
     try {
+      const formData = buildFormData();
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/post`,
-        postData,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -48,17 +64,19 @@ const AddPost = () => {
         navigate("/");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   }
+
   async function handleUpdatePost() {
     setLoading(true);
     try {
+      const formData = buildFormData();
       const res = await axios.put(
         `${import.meta.env.VITE_API_URL}/post/${id}`,
-        postData,
+        formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -66,34 +84,46 @@ const AddPost = () => {
           },
         },
       );
-      toast.success(res.data.message);
       if (postData.draft) {
-        navigate(`"/draft-post/${id}`);
+        toast.success(res.data.message);
+        navigate("/draft-list");
       } else {
-        navigate(`/post/${id}`);
+        toast.success("Post submitted for review");
+        navigate("/draft-list");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   }
 
+  
   async function fetchByPost() {
-    setPostData({ title, description, draft, image })
-
+    setFetching(true);
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/post/edit/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      const post = res.data.post;
+      setPostData({
+        title: post.title,
+        description: post.description,
+        draft: post.draft,
+        image: post.image, 
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load post");
+      navigate("/draft-list");
+    } finally {
+      setFetching(false);
+    }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!token) return navigate("/signin");
-    if (id) fetchByPost()
-    return () => {
-      if (window.location.pathname !== `/edit-post/${id}`) {
-        dispatch(removeselectedPost())
-      }
-    }
-    // eslint-disable-next-line
+    if (id) fetchByPost();
   }, [id]);
 
   return (
@@ -109,108 +139,114 @@ const AddPost = () => {
 
         {/* Form */}
         <div className="p-8 space-y-6">
-          {/* Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Title
-            </label>
+          {fetching ? (
+            <p className="text-gray-500">Loading post...</p>
+          ) : (
+            <>
+              {/* Title */}
+              <div>
+                <label
+                  htmlFor="title"
+                  className="block mb-2 font-medium text-gray-700"
+                >
+                  Title
+                </label>
 
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={postData.title}
-              onChange={handleChange}
-              placeholder="Enter post title..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={postData.title}
+                  onChange={handleChange}
+                  placeholder="Enter post title..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-          {/* Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Description
-            </label>
+              {/* Description */}
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block mb-2 font-medium text-gray-700"
+                >
+                  Description
+                </label>
 
-            <textarea
-              id="description"
-              name="description"
-              rows={8}
-              value={postData.description}
-              onChange={handleChange}
-              placeholder="Write your post..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={8}
+                  value={postData.description}
+                  onChange={handleChange}
+                  placeholder="Write your post..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-          {/* Image */}
-          <div>
-            <label
-              htmlFor="image"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Featured Image
-            </label>
+              {/* Image */}
+              <div>
+                <label
+                  htmlFor="image"
+                  className="block mb-2 font-medium text-gray-700"
+                >
+                  Featured Image
+                </label>
 
-            <label
-              htmlFor="image"
-              className=" overflow-hidden w-full h-72 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition"
-            >
-              <span className="text-lg font-medium text-gray-600">
-                {postData.image ? (
-                  <img
-                    src={typeof postData.image == "string" ? postData.image : URL.createObjectURL(postData.image)}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  "Click to upload image"
-                )}
-              </span>
+                <label
+                  htmlFor="image"
+                  className=" overflow-hidden w-full h-72 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition"
+                >
+                  <span className="text-lg font-medium text-gray-600">
+                    {postData.image ? (
+                      <img
+                        src={typeof postData.image == "string" ? postData.image : URL.createObjectURL(postData.image)}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      "Click to upload image"
+                    )}
+                  </span>
 
-              <span className="text-sm text-gray-400 mt-2">JPG, PNG, JPEG</span>
-            </label>
+                  <span className="text-sm text-gray-400 mt-2">JPG, PNG, JPEG</span>
+                </label>
 
-            <input
-              id="image"
-              name="image"
-              type="file"
-              accept=".jpg,.jpeg,.png"
-              className="hidden"
-              onChange={handleChange}
-            />
-          </div>
+                <input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={handleChange}
+                />
+              </div>
 
-          {/* Draft */}
-          <div className="flex items-center gap-3">
-            <input
-              id="draft"
-              name="draft"
-              type="checkbox"
-              checked={postData.draft}
-              onChange={handleChange}
-              className="checkbox checkbox-primary"
-            />
+              {/* Draft */}
+              <div className="flex items-center gap-3">
+                <input
+                  id="draft"
+                  name="draft"
+                  type="checkbox"
+                  checked={postData.draft}
+                  onChange={handleChange}
+                  className="checkbox checkbox-primary"
+                />
 
-            <label htmlFor="draft" className="cursor-pointer">
-              Save as Draft
-            </label>
-          </div>
+                <label htmlFor="draft" className="cursor-pointer">
+                  Save as Draft
+                </label>
+              </div>
 
-          {/* Button */}
-          <Button
-            loading={loading}
-            onClick={id ? handleUpdatePost : handleCreatePost}
-            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
-          >
-            {id ? "Update" : "Create"} Post
-          </Button>
+              {/* Button */}
+              <Button
+                loading={loading}
+                onClick={id ? handleUpdatePost : handleCreatePost}
+                className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+              >
+                {id ? "Update" : "Create"} Post
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

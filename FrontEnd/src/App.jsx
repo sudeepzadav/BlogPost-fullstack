@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SearchPost from "./pages/SearchPost";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import DraftList from "./components/Draftlist";
 
 function App() {
   const { token, role } = useSelector((state) => state.user);
@@ -26,6 +27,7 @@ function App() {
         <Route path="post/:id" element={<PostPage />} />
         <Route path="signup" element={<Auth type="signup" />} />
         <Route path="signin" element={<Auth type="signin" />} />
+        <Route path="/draft-list" element={<DraftList />} />
         <Route
           path="verify-email/:verificationToken"
           element={<VerifyUser />}

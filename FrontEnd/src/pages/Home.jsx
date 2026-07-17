@@ -7,8 +7,8 @@ const Home = () => {
   const { posts, hasMore } = usePagination("post", {}, 8, page);
 
   return (
-    <div className="min-h-125 overflow-y-auto overflow-x-hidden bg-slate-50">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-3">
+    <div className="bg-slate-50 overflow-x-hidden">
+      <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {posts.map((post) => (
           <Post post={post} key={post._id} />
         ))}
@@ -18,7 +18,7 @@ const Home = () => {
         <div className="mt-10 flex justify-center">
           <button
             onClick={() => setPage((prev) => prev + 1)}
-            className="rounded-full border border-violet-200 bg-white px-6 py-2.5 text-sm font-medium text-violet-700 shadow-sm transition-all duration-200 hover:border-violet-300 hover:bg-violet-50 hover:shadow active:scale-[0.98]"
+            className="mb-5 rounded-full border border-violet-200 bg-white px-6 py-2.5 text-sm font-medium text-violet-700 shadow-sm transition-all duration-200 hover:border-violet-300 hover:bg-violet-50 hover:shadow active:scale-[0.98]"
           >
             Load more
           </button>

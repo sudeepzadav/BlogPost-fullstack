@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 
+const STATUS_LABEL = {
+  pending: "Pending admin approval",
+  rejected: "Rejected",
+};
+
 const Post = ({ post }) => {
-  return (
-    <Link
-      to={`/post/${post.postId}`}
-      key={post._id}
-      className="card bg-base-100 w-full shadow-sm rounded-xl overflow-hidden"
-    >
+  const isViewable = post.status === "approved";
+
+  const cardContent = (
+    <>
       <figure className="h-56">
         <img
           src={post.image}
@@ -19,11 +22,49 @@ const Post = ({ post }) => {
         <h2 className="card-title line-clamp-1">{post.title}</h2>
         <p className="line-clamp-3">{post.description}</p>
 
-        <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
+        <div className="card-actions justify-between items-center">
+          {!isViewable && (
+            <span className="badge badge-warning">
+              {STATUS_LABEL[post.status] || post.status}
+            </span>
+          )}
+
+          {isViewable ? (
+            <button className="btn btn-primary">Buy Now</button>
+          ) : (
+            <Link
+              to={`/edit-post/${post.postId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="btn btn-outline btn-sm"
+            >
+              Edit
+            </Link>
+          )}
         </div>
       </div>
-    </Link>
+    </>
+  );
+
+  
+  if (isViewable) {
+    return (
+      <Link
+        to={`/post/${post.postId}`}
+        key={post._id}
+        className="card bg-base-100 w-full shadow-sm rounded-xl overflow-hidden"
+      >
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      key={post._id}
+      className="card bg-base-100 w-full shadow-sm rounded-xl overflow-hidden cursor-default"
+    >
+      {cardContent}
+    </div>
   );
 };
 
